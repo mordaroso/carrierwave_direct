@@ -29,6 +29,14 @@ module CarrierWaveDirect
       fog_public ? 'public-read' : 'private'
     end
 
+    def cache_control
+      fog_attributes[:'Cache-Control']
+    end
+
+    def expires
+      fog_attributes[:'Expires']
+    end
+
     def policy(options = {})
       options[:expiration] ||= upload_expiration
       options[:min_file_size] ||= min_file_size
@@ -149,6 +157,9 @@ module CarrierWaveDirect
       end
 
       conditions << ["content-length-range", options[:min_file_size], options[:max_file_size]]
+
+      conditions << { "Expires" => expires } if expires
+      conditions << { "Cache-Control" => cache_control } if cache_control
 
       Base64.encode64(
         {
